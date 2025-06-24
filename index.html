@@ -1,31 +1,38 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Generador de Descripciones HTML - Sin IA</title>
+  <title>Generador de Descripciones HTML con IA</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    body { font-family: Calibri, sans-serif; margin: 40px; }
+    body {
+      font-family: Calibri, sans-serif;
+    }
     h1 {
       background-color: #00b5e2;
       color: white;
       padding: 20px;
       border-radius: 8px;
     }
+    hr {
+      margin: 40px 0;
+      border: none;
+      height: 2px;
+      background-color: #ccc;
+    }
     .formulario {
       background: #f9f9f9;
       padding: 20px;
       border-radius: 8px;
-      margin-top: 30px;
+      margin-top: 20px;
     }
     .formulario label {
       display: block;
       margin-top: 10px;
-      font-weight: bold;
     }
-    .formulario input, .formulario button {
+    .formulario input, .formulario select, .formulario button {
       margin-top: 5px;
-      padding: 8px;
+      padding: 6px;
       width: 100%;
       box-sizing: border-box;
     }
@@ -36,13 +43,47 @@
       background: #f0faff;
       border-radius: 10px;
       font-size: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #progresoContainer {
+      display: none;
+      margin: 20px 0;
+    }
+    #barraProgreso {
+      width: 0%;
+      height: 20px;
+      background-color: #00b5e2;
+      color: white;
+      text-align: center;
+      line-height: 20px;
+    }
+    #notificacion {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #00b5e2;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      font-size: 14px;
+      display: none;
+      z-index: 9999;
     }
   </style>
 </head>
 <body>
-  <h1>🧾 Generador de Descripciones HTML (Sin IA)</h1>
+  <h1>🏍️ Generador de Descripciones para eCommerce</h1>
+
+  <hr>
 
   <div class="formulario">
+    <h2>🧾 Ingreso individual de datos</h2>
+    <label>Categoría (obligatorio):</label>
+    <select id="categoria">
+      <option value="prenda">Vestuario / Calzado</option>
+      <option value="producto">Decoración / Electro-tecno</option>
+    </select>
     <label>Nombre:</label>
     <input id="nombre">
     <label>Marca:</label>
@@ -53,25 +94,66 @@
     <input id="diseno">
     <label>Dimensiones:</label>
     <input id="dimensiones">
-    <label>Palabras clave (separadas por coma):</label>
-    <input id="palabras">
-    <button onclick="generarDescripcion()">Generar descripción</button>
+    <label>Bullet 1:</label>
+    <input id="bullet1">
+    <label>Bullet 2:</label>
+    <input id="bullet2">
+    <label>Bullet 3:</label>
+    <input id="bullet3">
+    <button onclick="generarIndividual()">Generar descripción</button>
     <button onclick="descargarHTML()">💾 Descargar como HTML</button>
+    <div id="preview">
+      <strong>🔍 Vista previa:</strong>
+      <div id="descripcionGenerada">Esperando generación...</div>
+    </div>
   </div>
 
-  <div id="preview">
-    <strong>🔍 Vista previa:</strong>
-    <div id="descripcionGenerada">Esperando generación...</div>
+  <hr>
+
+  <div class="formulario">
+    <h2>📂 Carga masiva desde Excel</h2>
+    <label>Selecciona tu archivo Excel:</label>
+    <input type="file" id="fileInput">
+    <button onclick="procesarArchivo()">Generar descripciones masivas</button>
+    <button onclick="generarArchivoEjemplo()">📥 Descargar archivo de ejemplo</button>
+    <div id="progresoContainer">
+      <div id="barraProgreso">0%</div>
+    </div>
   </div>
+
+  <div id="notificacion"></div>
 
   <script>
-    function generarDescripcion() {
-      const nombre = document.getElementById("nombre").value.trim();
-      const marca = document.getElementById("marca").value.trim();
-      const material = document.getElementById("material").value.trim();
-      const diseno = document.getElementById("diseno").value.trim();
-      const dimensiones = document.getElementById("dimensiones").value.trim();
-      const palabras = document.getElementById("palabras").value.trim();
+    function mostrarNotificacion(mensaje) {
+      const noti = document.getElementById("notificacion");
+      noti.textContent = mensaje;
+      noti.style.display = "block";
+      setTimeout(() => {
+        noti.style.display = "none";
+      }, 3000);
+    }
+
+    function generarArchivoEjemplo() {
+      const wb = XLSX.utils.book_new();
+      const data = [["sku", "nombre", "marca", "material", "diseño", "dimensiones", "bullet1", "bullet2", "bullet3"],
+                    ["123456", "Polera básica", "Paris Basics", "Algodón", "Casual", "M-L-XL", "Cómoda", "Transpirable", "Verano"]];
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Productos");
+      XLSX.writeFile(wb, "ejemplo_productos.xlsx");
+    }
+
+    function generarIndividual() {
+      const nombre = document.getElementById("nombre").value;
+      const marca = document.getElementById("marca").value;
+      const material = document.getElementById("material").value;
+      const diseno = document.getElementById("diseno").value;
+      const dimensiones = document.getElementById("dimensiones").value;
+      const categoria = document.getElementById("categoria").value;
+      const bullet1 = document.getElementById("bullet1").value.trim();
+      const bullet2 = document.getElementById("bullet2").value.trim();
+      const bullet3 = document.getElementById("bullet3").value.trim();
+
+      const tipo = categoria === "prenda" ? "prenda" : "producto";
 
       let h3 = `<h3>${nombre}`;
       if (marca) h3 += ` ${marca}`;
@@ -79,19 +161,27 @@
       h3 += `</h3>`;
 
       let cuerpo = `<p>`;
-      cuerpo += `Descubre la ${material ? 'calidad del ' + material.toLowerCase() + ' y la ' : ''}versatilidad de nuestra ${nombre.toLowerCase()}.`;
-      if (diseno) cuerpo += ` Su diseño ${diseno.toLowerCase()} la convierte en una prenda ideal para cualquier ocasión.`;
+      cuerpo += `Descubre la versatilidad de nuestra ${tipo} ${nombre.toLowerCase()}.`;
+      if (diseno) cuerpo += ` Su diseño ${diseno.toLowerCase()} la convierte en una ${tipo} ideal para cualquier ocasión.`;
       if (dimensiones) cuerpo += ` Disponible en tallas ${dimensiones}.`;
-      if (palabras) cuerpo += ` Ideal para quienes buscan ${palabras.toLowerCase()}.`;
-      cuerpo += ` ¡Agrega este producto al carro y disfruta de su estilo único!`;
+      cuerpo += ` ¡Agrega este ${tipo} al carro y disfruta de su estilo único!`;
       cuerpo += `</p>`;
+
+      if (bullet1 || bullet2 || bullet3) {
+        cuerpo += `<ul>`;
+        if (bullet1) cuerpo += `<li>${bullet1}</li>`;
+        if (bullet2) cuerpo += `<li>${bullet2}</li>`;
+        if (bullet3) cuerpo += `<li>${bullet3}</li>`;
+        cuerpo += `</ul>`;
+      }
 
       document.getElementById("descripcionGenerada").innerHTML = h3 + cuerpo;
     }
 
     function descargarHTML() {
       const contenido = document.getElementById("descripcionGenerada").innerHTML;
-      const blob = new Blob([contenido], { type: 'text/html' });
+      const htmlCompleto = `<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\"></head><body>${contenido}</body></html>`;
+      const blob = new Blob([htmlCompleto], { type: 'text/html' });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "descripcion.html";
