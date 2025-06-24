@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,7 +5,9 @@
   <title>Generador de Descripciones HTML con IA</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
-    body { font-family: Calibri, sans-serif; }
+    body {
+      font-family: Calibri, sans-serif;
+    }
     h1 {
       background-color: #00b5e2;
       color: white;
@@ -56,194 +57,193 @@
       text-align: center;
       line-height: 20px;
     }
-    #notificacion {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #00b5e2;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      font-size: 14px;
-      display: none;
-      z-index: 9999;
-    }
   </style>
 </head>
 <body>
-  <h1>🏍️ Generador de Descripciones para eCommerce</h1>
+  <h1>🛍️ Generador de Descripciones para eCommerce</h1>
+
+  <h2>📝 Instrucciones de uso</h2>
+  <ol>
+    <li>Descarga el <a href="Ejemplo_Productos_eCommerce_SKU.xlsx" download>archivo de ejemplo</a> y completa los datos de tus productos.</li>
+    <li>Asegúrate de completar la columna <strong>SKU</strong>, ya que este será el identificador de cada producto en el HTML.</li>
+    <li>Guarda el archivo en formato <strong>.xlsx</strong>.</li>
+    <li>En esta página, selecciona el archivo con el botón <strong>"Cargar archivo Excel"</strong>.</li>
+    <li>Ingresa tu clave de OpenAI para generar descripciones con IA.</li>
+    <li>Haz clic en <strong>"Generar descripciones"</strong>.</li>
+    <li>Una vez procesado, podrás descargar el archivo con columnas: <code>SKU</code> y <code>Descripción Larga</code>.</li>
+  </ol>
+  <p>⚠️ Todos los campos son opcionales, pero a mayor cantidad de información, mejor será la descripción generada.</p>
+
   <hr>
+
+  <h2>📄 Cargar archivo Excel</h2>
+  <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+  <br><br>
+  <label>🔑 Clave API de OpenAI: <input type="password" id="apiKey" placeholder="Tu clave segura"></label>
+  <br><br>
+  <button onclick="procesarArchivo()">Generar descripciones</button>
+  <div id="progresoContainer">
+    <div id="barraProgreso">0%</div>
+  </div>
+  <br>
+  <a id="downloadLink" style="display:none">📥 Descargar archivo con descripciones</a>
+
+  <hr>
+
+  <h2>🧾 Ingreso individual de datos</h2>
   <div class="formulario">
-    <h2>🧾 Ingreso individual de datos</h2>
-    <label>Clave API de OpenAI:</label>
-    <input id="apiKeyIndividual" type="password">
-    <label>Nombre:</label>
-    <input id="nombre">
-    <label>Marca:</label>
-    <input id="marca">
-    <label>Material:</label>
-    <input id="material">
-    <label>Diseño:</label>
-    <input id="diseno">
-    <label>Dimensiones:</label>
-    <input id="dimensiones">
-    <label>Palabras clave:</label>
-    <input id="palabras">
+    <label>Nombre del producto: <input type="text" id="nombre"></label>
+    <label>Marca: <input type="text" id="marca"></label>
+    <label>Material: <input type="text" id="material"></label>
+    <label>Diseño: <input type="text" id="diseno"></label>
+    <label>Dimensiones: <input type="text" id="dimensiones"></label>
+    <label>Palabras clave (separadas por coma): <input type="text" id="palabrasClave"></label>
+    <label>🔑 Clave API de OpenAI: <input type="password" id="apiKeySingle" placeholder="Tu clave segura"></label>
     <button onclick="generarIndividual()">Generar descripción</button>
     <button onclick="descargarHTML()">💾 Descargar como HTML</button>
-    <div id="preview">
-      <strong>🔍 Vista previa:</strong>
-      <div id="descripcionGenerada">Esperando generación...</div>
-    </div>
+</div>
+<div id="preview"></div>
   </div>
-  <hr>
-  <div class="formulario">
-    <h2>📂 Carga masiva desde Excel</h2>
-    <label>Clave API de OpenAI:</label>
-    <input id="apiKey" type="password">
-    <label>Selecciona tu archivo Excel:</label>
-    <input type="file" id="fileInput">
-    <button onclick="procesarArchivo()">Generar descripciones masivas</button>
-    <button onclick="generarArchivoEjemplo()">📥 Descargar archivo de ejemplo</button>
-    <div id="progresoContainer">
-      <div id="barraProgreso">0%</div>
-    </div>
-  </div>
-  <div id="notificacion"></div>
+
   <script>
-    function mostrarNotificacion(mensaje) {
-      const noti = document.getElementById("notificacion");
-      noti.textContent = mensaje;
-      noti.style.display = "block";
-      setTimeout(() => { noti.style.display = "none"; }, 3000);
-    }
+    let ultimaDescripcionGenerada = "";
 
-    function generarArchivoEjemplo() {
-      const wb = XLSX.utils.book_new();
-      const data = [["sku", "nombre", "marca", "material", "diseño", "dimensiones", "palabrasClave"],
-                    ["123456", "Polera básica", "Paris Basics", "Algodón", "Casual", "M-L-XL", "cómoda, básica, algodón, verano"]];
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      XLSX.utils.book_append_sheet(wb, ws, "Productos");
-      XLSX.writeFile(wb, "ejemplo_productos.xlsx");
-    }
+    async function generarDescripcion(producto, apiKey) {
+      const prompt = `Genera una descripción HTML atractiva con etiquetas <h3> y <p> para un producto de eCommerce. Información disponible:
+- Nombre: ${producto.nombre || ""}
+- Marca: ${producto.marca || ""}
+- Material: ${producto.material || ""}
+- Diseño: ${producto.diseño || ""}
+- Dimensiones: ${producto.dimensiones || ""}
+- Palabras clave: ${producto.palabrasClave || ""}
 
-    function procesarArchivo() {
-      const file = document.getElementById("fileInput").files[0];
-      const apiKey = document.getElementById("apiKey").value.trim();
-      if (!file || !apiKey) return mostrarNotificacion("⚠️ Debes subir un archivo y una clave API.");
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const productos = XLSX.utils.sheet_to_json(sheet);
-        const resultados = [];
-        let procesados = 0;
-        document.getElementById("progresoContainer").style.display = "block";
+Usa un tono semiformal, amigable y claro para cualquier persona. La descripción debe tener entre 3 a 5 párrafos breves, debe motivar al usuario a agregar el producto al carro. Incluye llamados a la acción. Usa etiquetas <strong> y <em> donde corresponda e inicia con un título en <h3>.`;
 
-        function actualizarProgreso() {
-          const porcentaje = Math.round((procesados / productos.length) * 100);
-          const barra = document.getElementById("barraProgreso");
-          barra.style.width = porcentaje + "%";
-          barra.textContent = porcentaje + "%";
-        }
-
-        function procesarProducto(producto, index) {
-          const prompt = `Genera una descripción HTML amigable, semiformal y vendible para un producto con los siguientes datos:
-Nombre: ${producto.nombre || ''}
-Marca: ${producto.marca || ''}
-Material: ${producto.material || ''}
-Diseño: ${producto["diseño"] || ''}
-Dimensiones: ${producto.dimensiones || ''}
-Palabras clave: ${producto.palabrasClave || ''}`;
-          return fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-              model: "gpt-3.5-turbo",
-              messages: [{ role: "user", content: prompt }],
-              temperature: 0.7
-            })
-          })
-          .then(res => res.json())
-          .then(data => {
-            const descripcion = data.choices?.[0]?.message?.content || "Error generando la descripción.";
-            resultados.push({ sku: producto.sku || `producto_${index + 1}`, descripcion });
-          })
-          .catch(() => {
-            resultados.push({ sku: producto.sku || `producto_${index + 1}`, descripcion: "Error generando la descripción." });
-          })
-          .finally(() => {
-            procesados++;
-            actualizarProgreso();
-            if (procesados === productos.length) exportarResultados();
-          });
-        }
-
-        function exportarResultados() {
-          const wb = XLSX.utils.book_new();
-          const data = [["SKU", "Descripción Larga"], ...resultados.map(p => [p.sku, p.descripcion])];
-          const ws = XLSX.utils.aoa_to_sheet(data);
-          XLSX.utils.book_append_sheet(wb, ws, "Descripciones");
-          XLSX.writeFile(wb, "descripciones_generadas.xlsx");
-          mostrarNotificacion("✅ Archivo generado correctamente.");
-        }
-
-        productos.forEach((p, i) => procesarProducto(p, i));
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function generarIndividual() {
-      const nombre = document.getElementById("nombre").value;
-      const marca = document.getElementById("marca").value;
-      const material = document.getElementById("material").value;
-      const diseno = document.getElementById("diseno").value;
-      const dimensiones = document.getElementById("dimensiones").value;
-      const palabras = document.getElementById("palabras").value;
-      const apiKey = document.getElementById("apiKeyIndividual").value.trim();
-
-      const prompt = `Genera una descripción HTML amigable, semiformal y vendible para un producto con los siguientes datos:
-Nombre: ${nombre}
-Marca: ${marca}
-Material: ${material}
-Diseño: ${diseno}
-Dimensiones: ${dimensiones}
-Palabras clave: ${palabras}`;
-
-      fetch("https://api.openai.com/v1/chat/completions", {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.7
         })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const descripcion = data.choices?.[0]?.message?.content || "Error generando la descripción.";
-        document.getElementById("descripcionGenerada").innerHTML = descripcion;
-      })
-      .catch(err => {
-        document.getElementById("descripcionGenerada").innerHTML = "❌ Error generando la descripción.";
       });
+
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "";
+    }
+
+    async function generarIndividual() {
+      const producto = {
+        nombre: document.getElementById("nombre").value,
+        marca: document.getElementById("marca").value,
+        material: document.getElementById("material").value,
+        diseño: document.getElementById("diseno").value,
+        dimensiones: document.getElementById("dimensiones").value,
+        palabrasClave: document.getElementById("palabrasClave").value
+      };
+      const apiKey = document.getElementById("apiKeySingle").value;
+      if (!apiKey) {
+        alert("Por favor ingresa tu clave de API.");
+        return;
+      }
+      const descripcion = await generarDescripcion(producto, apiKey);
+      ultimaDescripcionGenerada = descripcion;
+      document.getElementById("preview").innerHTML = `<h3>🔍 Vista previa:</h3>` + descripcion;
     }
 
     function descargarHTML() {
-      const contenido = document.getElementById("descripcionGenerada").innerHTML;
-      const blob = new Blob([contenido], { type: 'text/html' });
+      if (!ultimaDescripcionGenerada) {
+        alert("Primero debes generar una descripción.");
+        return;
+      }
+      const blob = new Blob([ultimaDescripcionGenerada], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "descripcion.html";
+      link.href = url;
+      link.download = "descripcion_individual.html";
       link.click();
+    }
+
+    async function procesarArchivo() {
+      const file = document.getElementById("fileInput").files[0];
+      const apiKey = document.getElementById("apiKey").value;
+      if (!file || !apiKey) {
+        alert("Por favor carga un archivo y tu clave de API.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        const resultados = [];
+        const progreso = document.getElementById("barraProgreso");
+        const contenedor = document.getElementById("progresoContainer");
+        contenedor.style.display = "block";
+
+        for (let i = 0; i < sheet.length; i++) {
+          const producto = {
+            nombre: sheet[i].nombre || "",
+            marca: sheet[i].marca || "",
+            material: sheet[i].material || "",
+            diseño: sheet[i].diseño || "",
+            dimensiones: sheet[i].dimensiones || "",
+            palabrasClave: sheet[i].palabrasClave || ""
+          };
+          const prompt = `Genera una descripción HTML atractiva con etiquetas <h3> y <p> para un producto de eCommerce. Información disponible:
+- Nombre: ${producto.nombre}
+- Marca: ${producto.marca}
+- Material: ${producto.material}
+- Diseño: ${producto.diseño}
+- Dimensiones: ${producto.dimensiones}
+- Palabras clave: ${producto.palabrasClave}
+
+Usa un tono semiformal, amigable y claro para cualquier persona. La descripción debe tener entre 3 a 5 párrafos breves, debe motivar al usuario a agregar el producto al carro. Incluye llamados a la acción. Usa etiquetas <strong> y <em> donde corresponda e inicia con un título en <h3>.`;
+
+          const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: "gpt-4",
+              messages: [{ role: "user", content: prompt }],
+              temperature: 0.7
+            })
+          });
+          const data = await response.json();
+          const descripcion = data.choices?.[0]?.message?.content || "";
+          resultados.push({
+            SKU: sheet[i].sku || `item_${i + 1}`,
+            "Descripción Larga": descripcion
+          });
+          const porcentaje = Math.round(((i + 1) / sheet.length) * 100);
+          progreso.style.width = porcentaje + "%";
+          progreso.textContent = porcentaje + "%";
+        }
+
+        const nuevaHoja = XLSX.utils.json_to_sheet(resultados);
+        const nuevoLibro = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(nuevoLibro, nuevaHoja, "Resultados");
+        const wbout = XLSX.write(nuevoLibro, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.download = "descripciones_generadas.xlsx";
+        link.style.display = "inline";
+        link.textContent = "📥 Descargar archivo con descripciones";
+        contenedor.style.display = "none";
+      };
+      reader.readAsArrayBuffer(file);
     }
   </script>
 </body>
