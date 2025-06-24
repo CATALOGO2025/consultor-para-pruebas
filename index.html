@@ -100,8 +100,10 @@
     <input id="bullet2">
     <label>Bullet 3:</label>
     <input id="bullet3">
+    <label>SKU:</label>
+    <input id="sku">
     <button onclick="generarIndividual()">Generar descripción</button>
-    <button onclick="descargarHTML()">💾 Descargar como HTML</button>
+    <button onclick="descargarExcel()">💾 Descargar como Excel</button>
     <div id="preview">
       <strong>🔍 Vista previa:</strong>
       <div id="descripcionGenerada">Esperando generación...</div>
@@ -153,7 +155,9 @@
       const bullet2 = document.getElementById("bullet2").value.trim();
       const bullet3 = document.getElementById("bullet3").value.trim();
 
-      const tipo = categoria === "prenda" ? "prenda" : "producto";
+      const tipo = categoria === "prenda" ? "una prenda" : "un producto";
+      const tipoN = categoria === "prenda" ? "la prenda" : "el producto";
+      const tipoM = categoria === "prenda" ? "nuestra prenda" : "nuestro producto";
 
       let h3 = `<h3>${nombre}`;
       if (marca) h3 += ` ${marca}`;
@@ -161,10 +165,10 @@
       h3 += `</h3>`;
 
       let cuerpo = `<p>`;
-      cuerpo += `Descubre la versatilidad de nuestra ${tipo} ${nombre.toLowerCase()}.`;
-      if (diseno) cuerpo += ` Su diseño ${diseno.toLowerCase()} la convierte en una ${tipo} ideal para cualquier ocasión.`;
+      cuerpo += `Descubre la versatilidad de ${tipoM} ${nombre.toLowerCase()}.`;
+      if (diseno) cuerpo += ` Su diseño ${diseno.toLowerCase()} la convierte en ${tipo} ideal para cualquier ocasión.`;
       if (dimensiones) cuerpo += ` Disponible en tallas ${dimensiones}.`;
-      cuerpo += ` ¡Agrega este ${tipo} al carro y disfruta de su estilo único!`;
+      cuerpo += ` ¡Agrega ${tipoN} al carro y disfruta de su estilo único!`;
       cuerpo += `</p>`;
 
       if (bullet1 || bullet2 || bullet3) {
@@ -178,14 +182,13 @@
       document.getElementById("descripcionGenerada").innerHTML = h3 + cuerpo;
     }
 
-    function descargarHTML() {
+    function descargarExcel() {
+      const sku = document.getElementById("sku").value || "SKU-sin-definir";
       const contenido = document.getElementById("descripcionGenerada").innerHTML;
-      const htmlCompleto = `<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\"></head><body>${contenido}</body></html>`;
-      const blob = new Blob([htmlCompleto], { type: 'text/html' });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "descripcion.html";
-      link.click();
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([["SKU", "Descripción Larga"], [sku, contenido]]);
+      XLSX.utils.book_append_sheet(wb, ws, "Descripciones");
+      XLSX.writeFile(wb, "descripcion_larga.xlsx");
     }
   </script>
 </body>
