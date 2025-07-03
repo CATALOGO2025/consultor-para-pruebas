@@ -6,12 +6,13 @@
   display: block;
   margin: 0 auto 15px;
 }<!DOCTYPE html>
+
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Creador de Descripciones Largas</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Creador de Descripciones Largas</title>
+<style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -159,82 +160,79 @@
   </style>
 </head>
 <body>
-  <div class="header">Creador de Descripciones Largas</div>
-  <div class="container">
-    <div class="attribute-group">
-      <p>📅 <strong>Procesar Excel:</strong> Sube un archivo Excel con los productos para generar automáticamente las fichas. Asegúrate de que contenga los siguientes campos: <em>SKU, Nombre, Tipo, Marca, Beneficios, Información adicional, URL Imagen</em>.</p>
-      <p>📄 <strong>Descargar Plantilla:</strong> Puedes descargar una plantilla de ejemplo para completar correctamente.</p>
-      <p>📝 <strong>Formulario Unitario:</strong> También puedes ingresar productos de forma individual usando el formulario más abajo.</p>
-    </div>
+<div class="header">Creador de Descripciones Largas</div>
+<div class="container">
+<div class="attribute-group">
+<p>📅 <strong>Procesar Excel:</strong> Sube un archivo Excel con los productos para generar automáticamente las fichas. Asegúrate de que contenga los siguientes campos: <em>SKU, Nombre, Tipo, Marca, Beneficios, Información adicional, URL Imagen</em>.</p>
+<p>📄 <strong>Descargar Plantilla:</strong> Puedes descargar una plantilla de ejemplo para completar correctamente.</p>
+<p>📝 <strong>Formulario Unitario:</strong> También puedes ingresar productos de forma individual usando el formulario más abajo.</p>
+</div>
+<div class="attribute-group">
+<label for="excelInput">📁 Selecciona tu archivo Excel:</label>
+<input accept=".xlsx, .xls" id="excelInput" type="file"/>
+<div class="button-group">
+<button id="btnProcesar">📥 Procesar Excel</button>
+<button id="btnPlantilla">📄 Descargar Plantilla</button>
+<button id="btnExportar">⬇️ Exportar HTML a Excel</button>
+<button id="btnLimpiar">🧹 Limpiar</button>
+</div>
+</div>
+<hr style="border: none; border-top: 2px solid #ccc; margin: 40px 0 10px"/>
+<h3 style="margin-bottom: 10px; font-size: 20px; color: #2c3e50">📝 Carga unitaria</h3>
+<div class="attribute-group form-unitario-grid">
+<div>
+<label for="skuUnit">SKU (solo referencial)</label>
+<input id="skuUnit" placeholder="Ej: 12345678" type="text"/>
+</div>
+<div>
+<label for="nombreUnit"><span style="color:red">*</span> Nombre de Producto</label>
+<input id="nombreUnit" placeholder="Ej: Labial Super Stay Matte Ink" type="text"/>
+</div>
+<div>
+<label for="marcaUnit"><span style="color:red">*</span> Marca</label>
+<input id="marcaUnit" placeholder="Ej: Maybelline" type="text"/>
+</div>
+<div>
+<label for="tipoUnit"><span style="color:red">*</span> Tipo de Producto</label>
+<input id="tipoUnit" placeholder="Ej: Labiales" type="text"/>
+</div>
+<div class="full-width">
+<label for="beneficiosUnit">Beneficios (separados por coma):</label>
+<input id="beneficiosUnit" placeholder="Ej: Larga duración, No se transfiere, Alta pigmentación" type="text"/>
+</div>
+<div class="full-width">
+<label for="infoUnit">Información adicional:</label>
+<input id="infoUnit" placeholder="Ej: Agita bien antes de usar. Aplica desde el centro hacia los extremos." type="text"/>
+</div>
+<div>
+<label for="img1Unit">URL Imagen <span style="font-style: italic; color: #888">(Formato horizontal)</span>:</label>
+<input id="img1Unit" placeholder="Ej: https://.../imagen1.jpg" type="text"/>
+</div>
+<div>
+<label for="img2Unit">URL Imagen 2 <span style="font-style: italic; color: #888">(Formato cuadrado)</span>:</label>
+<input id="img2Unit" placeholder="Ej: https://.../imagen2.jpg" type="text"/>
+</div>
+<div>
+<label for="img3Unit">URL Imagen 3 <span style="font-style: italic; color: #888">(Formato cuadrado)</span>:</label>
+<input id="img3Unit" placeholder="Ej: https://.../imagen3.jpg" type="text"/>
+</div>
+<div>
+<label for="colorUnit">Color del Título:</label>
+<select id="colorUnit">
+<option value="azul">Azul</option>
+<option value="rosa">Rosa</option>
+<option value="negro">Negro</option>
+</select>
+</div>
+<div class="full-width button-group">
+<button id="btnAgregar">Ver Tabla</button>
+</div>
+</div>
+<div id="descripcionFinal"></div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", function() {
 
-    <div class="attribute-group">
-      <label for="excelInput">📁 Selecciona tu archivo Excel:</label>
-      <input type="file" id="excelInput" accept=".xlsx, .xls">
-      <div class="button-group">
-        <button id="btnProcesar">📥 Procesar Excel</button>
-        <button id="btnPlantilla">📄 Descargar Plantilla</button>
-        <button id="btnExportar">⬇️ Exportar HTML a Excel</button>
-        <button id="btnLimpiar">🧹 Limpiar</button>
-      </div>
-    </div>
-
-    <hr style="border: none; border-top: 2px solid #ccc; margin: 40px 0 10px">
-    <h3 style="margin-bottom: 10px; font-size: 20px; color: #2c3e50">📝 Carga unitaria</h3>
-    <div class="attribute-group form-unitario-grid">
-      <div>
-        <label for="skuUnit">SKU (solo referencial)</label>
-        <input type="text" id="skuUnit" placeholder="Ej: 12345678">
-      </div>
-      <div>
-        <label for="nombreUnit"><span style='color:red'>*</span> Nombre de Producto</label>
-        <input type="text" id="nombreUnit" placeholder="Ej: Labial Super Stay Matte Ink">
-      </div>
-      <div>
-        <label for="marcaUnit"><span style='color:red'>*</span> Marca</label>
-        <input type="text" id="marcaUnit" placeholder="Ej: Maybelline">
-      </div>
-      <div>
-        <label for="tipoUnit"><span style='color:red'>*</span> Tipo de Producto</label>
-        <input type="text" id="tipoUnit" placeholder="Ej: Labiales">
-      </div>
-      <div class="full-width">
-        <label for="beneficiosUnit">Beneficios (separados por coma):</label>
-        <input type="text" id="beneficiosUnit" placeholder="Ej: Larga duración, No se transfiere, Alta pigmentación">
-      </div>
-      <div class="full-width">
-        <label for="infoUnit">Información adicional:</label>
-        <input type="text" id="infoUnit" placeholder="Ej: Agita bien antes de usar. Aplica desde el centro hacia los extremos.">
-      </div>
-      <div>
-        <label for="img1Unit">URL Imagen <span style="font-style: italic; color: #888">(Formato horizontal)</span>:</label>
-        <input type="text" id="img1Unit" placeholder="Ej: https://.../imagen1.jpg">
-      </div>
-      <div>
-        <label for="img2Unit">URL Imagen 2 <span style="font-style: italic; color: #888">(Formato cuadrado)</span>:</label>
-        <input type="text" id="img2Unit" placeholder="Ej: https://.../imagen2.jpg">
-      </div>
-      <div>
-        <label for="img3Unit">URL Imagen 3 <span style="font-style: italic; color: #888">(Formato cuadrado)</span>:</label>
-        <input type="text" id="img3Unit" placeholder="Ej: https://.../imagen3.jpg">
-      </div>
-      <div>
-        <label for="colorUnit">Color del Título:</label>
-        <select id="colorUnit">
-          <option value="azul">Azul</option>
-          <option value="rosa">Rosa</option>
-          <option value="negro">Negro</option>
-        </select>
-      </div>
-      <div class="full-width button-group">
-        <button id="btnAgregar">Ver Tabla</button>
-      </div>
-    </div>
-
-    <div id="descripcionFinal"></div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script>
     const coloresPermitidos = { azul: "#007bff", rosa: "#e91e63", negro: "#000000" };
     let fichasGeneradas = [];
 
@@ -374,6 +372,7 @@
     document.getElementById("btnPlantilla").addEventListener("click", descargarPlantilla);
     document.getElementById("btnExportar").addEventListener("click", descargarExcel);
     document.getElementById("btnLimpiar").addEventListener("click", limpiarTodo);
-  </script>
+  
+});</script>
 </body>
 </html>
