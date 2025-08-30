@@ -198,7 +198,16 @@ function cleanYoutubeUrl(url) {
         cleanUrl = cleanUrl.replace('watch?v=', 'embed/').split('&')[0];
         return cleanUrl.split('?')[0];
     }
-    return cleanUrl.split('?')[0];
+    
+
+return cleanUrl.split('?')[0];
+}
+
+// --- Helper: elimina la caja de ficha técnica si la tabla quedó vacía (sin filas) ---
+function removeEmptyFichaBlocks(s) {
+  try {
+    return s.replace(/<div[^>]*>\s*<h3[^>]*>[^<]*Nuestros Productos[^<]*<br>Ficha técnica y especificaciones<\/h3>\s*<table[^>]*>\s*<\/table>\s*<\/div>/gis, '');
+  } catch (e) { return s; }
 }
 </script>
 <style>
@@ -375,7 +384,7 @@ ${botonHTML}
     html += `</div>`;
   });
   html += '</div>';
-  container.innerHTML = html;
+  container.innerHTML = removeEmptyFichaBlocks(html);
 }
 function exportHtmlToExcel() {
   if (!excelRows.length) return alert('❌ No hay datos cargados para exportar.');
@@ -426,6 +435,7 @@ ${botonHTML}
     html += `</table></div>`;
     if (embedUrl) html += `<div class='video-container' style='margin-top:0;padding-top:10px;'><iframe width='100%' height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
     html += `</div>`;
+    html = removeEmptyFichaBlocks(html);
     data.push([sku, cleanForCSV(html)]);
   });
   const ws = XLSX.utils.aoa_to_sheet(data);
