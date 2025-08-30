@@ -212,7 +212,7 @@ function removeEmptyFichaBlocks(s) {
 </script>
 <style>
 body { font-family: Calibri, sans-serif; margin: 0; background-color: #f4f6f7; font-size: 14px; }
-.header {  color: white; padding: 20px; font-size: 28px; text-align: center; font-weight: bold;  background:#000273; }
+.header { flex-direction:row; gap:12px; justify-content:center; align-items:center; display:flex;  color: white; padding: 20px; font-size: 28px; text-align: center; font-weight: bold;  background:#000273; }
 .card { margin: 20px; background: linear-gradient(180deg, #ffffff, #f8f9fa); border-radius: 12px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
 h2 { border-bottom: 1px solid #ddd; padding-bottom: 10px; font-size: 20px; }
 button { background: linear-gradient(#1f618d, #154360); color: white; border: none; padding: 12px 20px; margin-right: 10px; margin-bottom: 10px; border-radius: 6px; cursor: pointer; font-size: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: all 0.2s ease-in-out; }
@@ -270,7 +270,7 @@ img { max-width: 100%; height: auto; }
 </style>
 </head>
 <body>
-<div class="header" style="background:#000273;">📦 Creador de Descripciones Largas</div>
+<div class="header" style="background:#000273;"><img src="https://cl-paris-media-hub.ecomm.cencosud.com/files/logos_paris/logos_web/Header_Brand_125_60x60.svg?v=1" alt="Paris" style="max-height:50px;height:auto;width:auto;display:block;"/><span>Creador de Descripciones Largas</span></div>
 <div class="card">
 <h2>📜 Instrucciones</h2>
 <ul style="line-height:1.7;">
@@ -370,7 +370,7 @@ function updateTables() {
 <div style='display:inline-block; background:#f4f6f7; color:#333; font-size:13px; padding:4px 10px; border-radius:6px; margin-top:6px;'>📦 SKU: ${sku}</div>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
 ${cta ? formatMetaDescripcion(cta) : ''}
-${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:60px;height:auto;width:auto;display:block;'></div>` : ''}
+${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
 ${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
 ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 20px; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${botonHTML}
@@ -423,7 +423,7 @@ function exportHtmlToExcel() {
     let html = `<div style='margin-bottom:25px; background:#fff;'>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
 ${cta ? formatMetaDescripcion(cta) : ''}
-${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:60px;height:auto;width:auto;display:block;'></div>` : ''}
+${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
 ${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
 ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 20px; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${botonHTML}
