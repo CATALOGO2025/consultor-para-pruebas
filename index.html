@@ -439,7 +439,7 @@ ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent;
 ${renderIconosExport(iconos)}
 ${botonHTML}
 <div style='border:1px solid #ddd; border-radius:8px; background:#fff;'>
-<h3 style='background:#000273;color:white;padding:15px;margin:0; text-align:center; border-radius:8px 8px 0 0;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
+<h3 style='background: #2C3E50;color:white;padding:15px;margin:0; text-align:center; border-radius:8px 8px 0 0;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
 <table style='width:100%; border-collapse:collapse;'>`;
     if (material) html += `<tr style='border-bottom:1px solid #ddd;'><td style='padding:15px;'><img src='${imgMaterial || defaultImagenes.material}' alt='Material'></td><td style='padding:15px;'><b>Material:</b> ${material}</td></tr>`;
     if (dimensiones && dimensiones.trim() !== '') html += `<tr><td style='padding:15px;'><img src='${imgDimensiones || defaultImagenes.dimensiones}' alt='Dimensiones'></td><td style='padding:15px;'><b>Dimensiones:</b> ${dimensiones}</td></tr>`;
@@ -495,7 +495,7 @@ ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent;
 ${renderIconosExport(iconos)}
 ${botonHTML}
 <div style='border:1px solid #ddd; border-radius:8px;'>
-<h3 style='background:#000273;color:white;padding:15px;margin:0; text-align:center;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
+<h3 style='background: #2C3E50;color:white;padding:15px;margin:0; text-align:center;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
 <table style='width:100%; border-collapse:collapse;'>`;
     if (material) html += `<tr style='border-bottom:1px solid #ddd;'><td style='padding:15px;'><img src='${imgMaterial || defaultImagenes.material}'></td><td style='padding:15px;'><b>Material:</b> ${material}</td></tr>`;
     if (dimensiones) html += `<tr><td style='padding:15px;'><img src='${imgDimensiones || defaultImagenes.dimensiones}'></td><td style='padding:15px;'><b>Dimensiones:</b> ${dimensiones}</td></tr>`;
