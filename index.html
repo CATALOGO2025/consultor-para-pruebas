@@ -13,7 +13,7 @@ const PLANTILLA_XLSX_B64 = "UEsDBBQABgAIAAAAIQD5+o3PkgEAAKkHAAATAAgCW0NvbnRlbnRf
 
 async function downloadTemplate() {
   const filename = PLANTILLA_XLSX_FILENAME || "Plantilla_Descripciones.xlsx";
-  const repoPath = "./" + filename + "?v=20250830175821"; // archivo físico en el repo
+  const repoPath = "./assets/" + filename + "?v=20250830180141"; // archivo físico en el repo
   try {
     const resp = await fetch(repoPath, { cache: "no-store" });
     if (!resp.ok) throw new Error("HTTP " + resp.status);
