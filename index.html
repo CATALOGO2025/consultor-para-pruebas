@@ -306,6 +306,26 @@ br.pre-h4{display:block;margin:0 0 0 0;}
 .easy-ficha-wrapper .table-wrap {
   padding-bottom: 8px;
 }
+
+/* --- Visual-only divider between cards (preview only) --- */
+.card-divider{
+  height: 1px;
+  background: #e9eef3;
+  border: 0;
+  margin: clamp(18px, 2.5vw, 26px) 0;
+  width: 100%;
+}
+
+
+/* --- Divider between rows (visualization only) --- */
+.row-divider{
+  flex-basis: 100%;
+  height: 1px;
+  background: #e9eef3;
+  margin: clamp(18px, 2.5vw, 26px) 0;
+  border: 0;
+}
+
 </style>
 <style>
 
@@ -459,7 +479,7 @@ const cta = metaDescripcion.trim(); // sin fallback
           </a>
         </div>`;
     }
-    html += `<div style='flex:1 1 400px; margin-bottom:25px; background:#fff;'>
+    html += `<div style='flex:1 1 400px; margin-bottom:25px; background:#fff; padding: clamp(14px, 2vw, 22px); border:1px solid #eef2f6; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); overflow:hidden;'>
 <div class='visual-id'>Ficha N° ${index + 1}</div>
 <div style='display:inline-block; background:#f4f6f7; color:#333; font-size:13px; padding:4px 10px; border-radius:6px; margin-top:6px;'>📦 SKU: ${sku}</div>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
@@ -477,7 +497,12 @@ ${botonHTML}
     html += `</table></div>`;
     if (embedUrl) html += `<div class='video-container'><iframe height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
     html += `</div>`;
-  });
+  
+    /* divider after each row of 3 cards (visual only) */
+    if (((index + 1) % 3) === 0 && index < excelRows.length - 1) {
+      html += `<div class="row-divider"></div>`;
+    }
+});
   html += '</div>';
   container.innerHTML = removeEmptyFichaBlocks(html);
 }
