@@ -526,14 +526,16 @@ const cta = metaDescripcion.trim(); // sin fallback
     }
 
     // Bloque 2-3: debajo del botón (dos columnas)
+        // Bloque 2-3: debajo del botón (dos columnas)
     let difBlock23 = '';
     if (dif2 || dif3) {
       difBlock23 = `
-        <div style="margin:10px 0 0 0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; width:100%; clear:both;">
+        <div style="margin:10px 0 0 0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; align-items:start; width:100%; clear:both;">
           ${dif2 ? `<img src="${dif2}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
           ${dif3 ? `<img src="${dif3}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
         </div>`;
     }
+    
     
     if (botonTexto && botonUrl) {
       botonHTML = `
@@ -577,7 +579,7 @@ ${botonHTML}${difBlock23}
 }
 function exportHtmlToExcel() {
   if (!excelRows.length) return alert('❌ No hay datos cargados para exportar.');
-  const data = [['SKU', 'Descripción Larga']];
+  const data = [['SKU', 'Descripción Larga/Emocional']];
   excelRows.forEach((row) => {
     const sku = get(row, ['SKU']);
     const marca = get(row, ['Descripción de la Marca','Descripcion de la Marca','Descripción Marca']);
@@ -608,22 +610,24 @@ const cta = metaDescripcion.trim(); // sin fallback
     const dif3 = buildDifUrl(dif3Name);
     console.log('DIF URLs:', dif1, dif2, dif3);
 
-    let difBlock = '';
-    if (dif1) {
-      difBlock += `
-        <div style="margin:16px 0; clear:both;">
-          <img src="${dif1}" alt="Imagen diferenciadora 1"
-               loading="lazy" decoding="async"
-               style="width:100%;height:auto;display:block;border-radius:10px;">
-        </div>`;
-    }
-    if (dif2 || dif3) {
-      difBlock += `
-        <div style="margin:10px 0 0 0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; align-items:start; width:100%; clear:both;">
-          ${dif2 ? `<img src="${dif2}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
-          ${dif3 ? `<img src="${dif3}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
-        </div>`;
-    }
+    let difBlock1 = '';
+if (dif1) {
+  difBlock1 = `
+    <div style="margin:16px 0; clear:both;">
+      <img src="${dif1}" alt="" loading="lazy" decoding="async"
+           style="width:100%;height:auto;display:block;border-radius:10px;">
+    </div>`;
+}
+
+let difBlock23 = '';
+if (dif2 || dif3) {
+  difBlock23 = `
+    <div style="margin:10px 0 0 0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; align-items:start; width:100%; clear:both;">
+      ${dif2 ? `<img src="${dif2}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
+      ${dif3 ? `<img src="${dif3}" alt="" loading="lazy" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px;object-fit:contain;">` : ''}
+    </div>`;
+}
+
     
     if (botonTexto && botonUrl) {
       botonHTML = `
