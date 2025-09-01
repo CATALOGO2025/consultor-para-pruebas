@@ -229,7 +229,7 @@ function formatDescripcionHTML(textoPlano) {
 }
 function formatMetaDescripcion(texto) {
     if (!texto) return '';
-    const style = "margin-bottom:18px; background:#f4f6f7; color:#333; font-size:15px; padding:12px 20px; border-radius:12px; font-weight:normal; line-height:1.6;";
+    const style = "margin-bottom:18px; background:#f4f6f7; color:#333; font-size:15px; padding:12px 20px; border-radius:8px; font-weight:normal; line-height:1.6;";
     const bloques = String(texto).trim().split(/\r?\n\r?\n/);
     return bloques.map(b => `<p style='${style}'>${b.replace(/\r?\n/g, '<br>')}</p>`).join('');
 }
@@ -260,11 +260,11 @@ function removeEmptyFichaBlocks(s) {
 <style>
 body { font-family: Calibri, sans-serif; margin: 0; background-color: #f4f6f7; font-size: 14px; }
 .header { flex-direction:row; gap:12px; justify-content:center; align-items:center; display:flex;  color: white; padding: 20px; font-size: 28px; text-align: center; font-weight: bold;  background:#000273; }
-.card { margin: 20px; background: linear-gradient(180deg, #ffffff, #f8f9fa); border-radius:12px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
+.card { margin: 20px; background: linear-gradient(180deg, #ffffff, #f8f9fa); border-radius:8px; padding: 20px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); border: 1px solid #ddd; }
 h2 { border-bottom: 1px solid #ddd; padding-bottom: 10px; font-size: 20px; }
-button { background: linear-gradient(#1f618d, #154360); color: white; border: none; padding: 12px 20px; margin-right: 10px; margin-bottom: 10px; border-radius:12px; cursor: pointer; font-size: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: all 0.2s ease-in-out; }
+button { background: linear-gradient(#1f618d, #154360); color: white; border: none; padding: 12px 20px; margin-right: 10px; margin-bottom: 10px; border-radius:8px; cursor: pointer; font-size: 14px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); transition: all 0.2s ease-in-out; }
 button:hover { transform: scale(1.02); box-shadow: 0 5px 12px rgba(0,0,0,0.15); }
-.visual-id { margin-bottom: 5px; background: #d6eaf8 !important; color: #21618c !important; font-size: 14px !important; padding: 6px 12px !important; border-radius:12px !important; font-weight: bold !important; display: inline-block !important; }
+.visual-id { margin-bottom: 5px; background: #d6eaf8 !important; color: #21618c !important; font-size: 14px !important; padding: 6px 12px !important; border-radius:8px !important; font-weight: bold !important; display: inline-block !important; }
 img[alt="Marca"] { max-width: 100px !important; height: auto !important; display: block; margin: 0 auto; }
 img[alt="Descripción"], img[alt="Material"], img[alt="Dimensiones"] { width: 50px !important; height: 50px !important; object-fit: contain !important; display: block; margin: 0 auto; }
 img[src=""] { display: none; }
@@ -366,7 +366,7 @@ img { max-width: 100%; height: auto; }
   width: 100%;
   padding-top: 56.25% !important; /* override any previous padding */
   margin-top: clamp(24px, 3.5vw, 40px) !important;
-  border-radius:12px;
+  border-radius:8px;
   overflow: hidden;
 }
 .video-container iframe{
@@ -468,36 +468,34 @@ const cta = metaDescripcion.trim(); // sin fallback
     let botonHTML = '';
     if (botonTexto && botonUrl) {
       botonHTML = `
-        <div style='margin: 16px 0 20px 0;'>
+                <div style='margin: 15px 0;'>
           <a href='${botonUrl}' target='_blank' style='
-            display:inline-flex; align-items:center; gap:10px;
-            background-color:#0057cb; color:#fff;
-            padding:14px 22px; border-radius:12px; font-weight:bold; text-decoration:none;
-            box-shadow:0 6px 14px rgba(0,0,0,0.18); transition:all 0.2s ease-in-out;
-            line-height:1.25; white-space:normal; word-break:keep-all; max-width:100%;
-          ' onmouseover="this.style.backgroundColor='#004db0'; this.style.boxShadow='0 8px 18px rgba(0,0,0,0.24)';"
-             onmouseout="this.style.backgroundColor='#0057cb'; this.style.boxShadow='0 6px 14px rgba(0,0,0,0.18)';">
+            display:inline-block; background-color:#0057cb; color:#fff;
+            padding:12px 20px; border-radius:6px; font-weight:bold; text-decoration:none;
+            box-shadow:0 3px 6px rgba(0,0,0,0.1); transition:all 0.2s ease-in-out;
+          ' onmouseover="this.style.boxShadow='0 5px 12px rgba(0,0,0,0.2)'"
+             onmouseout="this.style.boxShadow='0 3px 6px rgba(0,0,0,0.1)'">
             ${botonTexto}
           </a>
         </div>`;
     }
-    html += `<div style='flex:1 1 400px; margin-bottom:25px; background:#fff; padding: clamp(14px, 2vw, 22px); border:1px solid #eef2f6; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); overflow:hidden;'>
+    html += `<div style='flex:1 1 400px; margin-bottom:25px; background:#fff; padding: clamp(14px, 2vw, 22px); border:1px solid #eef2f6; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); overflow:hidden;'>
 <div class='visual-id'>Ficha N° ${index + 1}</div>
-<div style='display:inline-block; background:#f4f6f7; color:#333; font-size:13px; padding:4px 10px; border-radius:12px; margin-top:6px;'>📦 SKU: ${sku}</div>
+<div style='display:inline-block; background:#f4f6f7; color:#333; font-size:13px; padding:4px 10px; border-radius:8px; margin-top:6px;'>📦 SKU: ${sku}</div>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
 ${cta ? formatMetaDescripcion(cta) : ''}
 ${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
 ${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
-${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:12px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
+${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${renderIconosExport(iconos)}
 ${botonHTML}
-<div style='border:1px solid #ddd; border-radius:12px; background:#fff;'>
-<h3 style='background: #2C3E50;color:white;padding:15px;margin:0; text-align:center; border-radius:12px 8px 0 0;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
+<div style='border:1px solid #ddd; border-radius:8px; background:#fff;'>
+<h3 style='background: #2C3E50;color:white;padding:15px;margin:0; text-align:center; border-radius:8px 8px 0 0;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
 <table style='width:100%; border-collapse:collapse;'>`;
     if (material) html += `<tr style='border-bottom:1px solid #ddd;'><td style='padding:15px;'><img src='${imgMaterial || defaultImagenes.material}' alt='Material'></td><td style='padding:15px;'><b>Material:</b> ${material}</td></tr>`;
     if (dimensiones && dimensiones.trim() !== '') html += `<tr><td style='padding:15px;'><img src='${imgDimensiones || defaultImagenes.dimensiones}' alt='Dimensiones'></td><td style='padding:15px;'><b>Dimensiones:</b> ${dimensiones}</td></tr>`;
     html += `</table></div>`;
-    if (embedUrl) html += `<div class='video-container'><iframe height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
+    if (embedUrl) html += `<div style='position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px'><iframe style='position:absolute;top:0;left:0;width:100%;height:100%;border:0' loading='lazy' referrerpolicy='strict-origin-when-cross-origin' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
     html += `</div>`;
   
     /* divider after each row of 3 cards (visual only) */
@@ -533,10 +531,10 @@ const cta = metaDescripcion.trim(); // sin fallback
     let botonHTML = '';
     if (botonTexto && botonUrl) {
       botonHTML = `
-        <div style='margin: 16px 0 20px 0;'>
+                <div style='margin: 15px 0;'>
           <a href='${botonUrl}' target='_blank' style='
             display:inline-block; background-color:#0057cb; color:#fff;
-            padding:12px 0; border-radius:12px; font-weight:bold; text-decoration:none;
+            padding:12px 20px; border-radius:6px; font-weight:bold; text-decoration:none;
             box-shadow:0 3px 6px rgba(0,0,0,0.1); transition:all 0.2s ease-in-out;
           ' onmouseover="this.style.boxShadow='0 5px 12px rgba(0,0,0,0.2)'"
              onmouseout="this.style.boxShadow='0 3px 6px rgba(0,0,0,0.1)'">
@@ -549,16 +547,16 @@ const cta = metaDescripcion.trim(); // sin fallback
 ${cta ? formatMetaDescripcion(cta) : ''}
 ${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
 ${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
-${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:12px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
+${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${renderIconosExport(iconos)}
 ${botonHTML}
-<div style='border:1px solid #ddd; border-radius:12px;'>
+<div style='border:1px solid #ddd; border-radius:8px;'>
 <h3 style='background: #2C3E50;color:white;padding:15px;margin:0; text-align:center;'>Nuestros Productos<br>Ficha técnica y especificaciones</h3>
 <table style='width:100%; border-collapse:collapse;'>`;
     if (material) html += `<tr style='border-bottom:1px solid #ddd;'><td style='padding:15px;'><img src='${imgMaterial || defaultImagenes.material}'></td><td style='padding:15px;'><b>Material:</b> ${material}</td></tr>`;
     if (dimensiones) html += `<tr><td style='padding:15px;'><img src='${imgDimensiones || defaultImagenes.dimensiones}'></td><td style='padding:15px;'><b>Dimensiones:</b> ${dimensiones}</td></tr>`;
     html += `</table></div>`;
-    if (embedUrl) html += `<div class='video-container'><iframe height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
+    if (embedUrl) html += `<div style='position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px'><iframe style='position:absolute;top:0;left:0;width:100%;height:100%;border:0' loading='lazy' referrerpolicy='strict-origin-when-cross-origin' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' height='auto' src='${embedUrl}' frameborder='0' allowfullscreen></iframe></div>`;
     html += `</div>`;
     html = removeEmptyFichaBlocks(html);
     data.push([sku, cleanForCSV(html)]);
