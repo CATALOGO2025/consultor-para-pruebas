@@ -7,6 +7,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 <script>
 
+// --- Helpers robustos para URL de Marca (idempotente) ---
+if (typeof cleanCell !== 'function') {
+  function cleanCell(v){
+    return String(v||'').replace(/\u00A0/g,' ').replace(/[“”"']/g,'').trim();
+  }
+}
+if (typeof buildMarcaUrl !== 'function') {
+  function buildMarcaUrl(v) {
+  if (!v) return "";
+  const t = String(v).trim();
+  if (/^https?:\/\//i.test(t)) return t; // URL completa
+  const fileOnly = t.replace(/^.*[\\/]/, "").replace(/[?#].*$/, "");
+  // Defaults si no existen las constantes globales
+  const part1 = (typeof MARCA_IMG_PART1 !== 'undefined') ? MARCA_IMG_PART1 : 'https://www.paris.cl/images/Contenido%20Fichas/Logos/';
+  const part2 = (typeof MARCA_IMG_PART2 !== 'undefined') ? MARCA_IMG_PART2 : '?$staticlink$';
+  return part1 + encodeURIComponent(fileOnly) + part2;
+}
+}
+
+
 // --- Prefijo/sufijo para Imágenes Diferenciadoras ---
 const DIF_IMG_PART1 = "https://www.paris.cl/images/Contenido%20Fichas/Diferenciadores/";
 const DIF_IMG_PART2 = "?$staticlink$";
@@ -469,7 +489,9 @@ function updateTables() {
     const descripcion = get(row, ['Nombre del Producto','Nombre Producto','Producto']);
     const material = get(row, ['Material']);
     const dimensiones = get(row, ['Dimensiones']);
-    const imgMarca = get(row, ['URL Imagen Marca','URL Imagen Marca ']);
+    console.log('Marca URL (build):', buildMarcaUrl);
+    const _rawMarca = cleanCell(get(row, ['URL Imagen Marca','Url Imagen Marca','Imagen de Marca','imagen de marca']));
+const imgMarca = buildMarcaUrl(_rawMarca);
     const imgDesc = get(row, ['URL Imagen Descripción','URL Imagen Descripcion']);
     const imgMaterial = get(row, ['URL Imagen Material']);
     const imgDimensiones = get(row, ['URL Imagen Dimensiones']);
