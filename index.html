@@ -552,9 +552,9 @@ const cta = metaDescripcion.trim(); // sin fallback
 <div class='visual-id'>Ficha N° ${index + 1}</div>
 <div style='display:inline-block; background:#f4f6f7; color:#333; font-size:13px; padding:4px 10px; border-radius:8px; margin-top:6px;'>📦 SKU: ${sku}</div>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
-${cta ? formatMetaDescripcion(cta) : ''}${difBlock1}
+${cta ? formatMetaDescripcion(cta) : ''}
 ${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
-${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
+${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}${difBlock1}
 ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${renderIconosExport(iconos)}
 ${botonHTML}${difBlock23}
@@ -640,9 +640,9 @@ const cta = metaDescripcion.trim(); // sin fallback
     }
     let html = `<div style='margin-bottom:25px; background:#fff;'>
 <h3 style='margin-bottom:15px; color:#2c3e50;'>${descripcion}</h3>
-${cta ? formatMetaDescripcion(cta) : ''}${difBlock1}
+${cta ? formatMetaDescripcion(cta) : ''}
 ${imgMarca ? `<div style='margin:6px 0 8px 0;'><img src='${imgMarca}' alt='Imagen de Marca' style='max-height:50px;height:auto;width:auto;display:block;'></div>` : ''}
-${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}
+${marca ? `<div style='margin-bottom:10px; font-size:15px;'>${marca}</div>` : ''}${difBlock1}
 ${descripcionProducto ? `<div style='margin-bottom:15px; background:transparent; color:#000; font-size:15px; padding:12px 0; border-radius:8px;'>${formatDescripcionHTML(descripcionProducto)}</div>` : ''}
 ${renderIconosExport(iconos)}
 ${botonHTML}
