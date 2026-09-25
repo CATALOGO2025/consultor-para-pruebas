@@ -644,6 +644,15 @@ img { max-width: 100%; height: auto; }
 .easy-preview-viewport.easy-preview-app img{max-width:100%!important;height:auto!important;}
 .export-count{color:#fff!important;}
 </style>
+
+<style>
+/* === Semaforo compacto v19 === */
+.quality-panel{padding:16px 20px!important}
+.quality-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.quality-filters{display:flex;gap:6px;flex-wrap:wrap}.quality-filter{background:#fff!important;color:#344054!important;border:1px solid #dfe5ec!important;border-radius:999px!important;padding:6px 10px!important;font-size:12px!important;font-weight:700!important;margin:0!important;box-shadow:none!important}.quality-filter.active{background:#173f5f!important;color:#fff!important;border-color:#173f5f!important}.quality-search{width:220px;max-width:100%;border:1px solid #dfe5ec;border-radius:7px;padding:7px 10px;font-size:12px;box-sizing:border-box}
+.quality-details{margin-top:10px!important}.quality-list{margin-top:8px;border:1px solid #e5e9ef;border-radius:8px;overflow:hidden}.quality-row{display:grid;grid-template-columns:minmax(105px,150px) 1fr auto;gap:10px;align-items:center;padding:8px 10px;background:#fff;border-bottom:1px solid #eef1f4;font-size:12px}.quality-row:last-child{border-bottom:0}.quality-row-sku{font-weight:700;white-space:nowrap}.quality-row-reason{color:#667085;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.quality-row-status{font-size:11px;font-weight:700;white-space:nowrap}.quality-more{border:0!important;background:transparent!important;color:#475467!important;padding:2px 5px!important;margin:0!important;box-shadow:none!important;font-size:14px!important}.quality-expanded{grid-column:2 / 4;color:#667085;line-height:1.45;padding:2px 0 4px}.quality-expanded div+div{margin-top:3px}.quality-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;color:#667085;font-size:11.5px}.quality-page-actions{display:flex;gap:5px}.quality-page-actions button{margin:0!important;padding:4px 8px!important;font-size:11px!important;background:#fff!important;color:#344054!important;border:1px solid #dfe5ec!important;box-shadow:none!important}.quality-empty{padding:16px;text-align:center;color:#667085;font-size:12px}
+@media(max-width:700px){.quality-search{width:100%}.quality-row{grid-template-columns:1fr auto}.quality-row-reason{grid-column:1 / 3;white-space:normal}.quality-row-status{grid-column:2;grid-row:1}.quality-expanded{grid-column:1 / 3}.quality-footer{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
 <!-- Video YouTube sincronizado desde index Easy de referencia funcional -->
 <body>
@@ -705,6 +714,7 @@ let excelRows = [];
 const exportSelection = new Set();
 const easySuggestionSelection = new Set();
 const easySuggestionOpenState = {info:true, care:true};
+const easyQualityUI = {filter:'attention', search:'', page:1, pageSize:25, expanded:new Set()};
 
 function toggleExportSelection(index, checked){
   if(checked) exportSelection.add(Number(index)); else exportSelection.delete(Number(index));
@@ -717,10 +727,12 @@ function updateExportSelectionCount(){
 function toggleEasySuggestionSelection(i, checked){ if(checked) easySuggestionSelection.add(Number(i)); else easySuggestionSelection.delete(Number(i)); }
 function clearEasySuggestionSelection(){ easySuggestionSelection.clear(); renderEasySuggestions(); }
 function applySelectedEasySuggestions(){
-  const ids=[...easySuggestionSelection];
+  const ids=[...easySuggestionSelection].filter(i=>easySuggestions[i]&&easySuggestions[i].status==='Sugerencia');
   if(!ids.length) return alert('☑️ Selecciona al menos una sugerencia.');
-  ids.forEach(i=>applyEasySuggestion(i,true));
+  let approved=0;
+  ids.forEach(i=>{ if(easySuggestions[i]&&easySuggestions[i].status==='Sugerencia'){ applyEasySuggestion(i,true); approved++; } });
   easySuggestionSelection.clear(); renderEasySuggestions(); renderEasyQualityPanel(); updateTables();
+  alert(approved===1?'✅ Se aprobó 1 sugerencia':'✅ Se aprobaron '+approved+' sugerencias');
 }
 function toggleEasySuggestionSection(type){ easySuggestionOpenState[type]=!easySuggestionOpenState[type]; renderEasySuggestions(); }
 
@@ -982,16 +994,29 @@ function evaluateEasyQuality(row,rowIndex){
   if(!reasons.length) reasons.push('🟢 Sin alertas objetivas detectadas');
   return {level,reasons};
 }
+function setEasyQualityFilter(filter){easyQualityUI.filter=filter;easyQualityUI.page=1;renderEasyQualityPanel();}
+function setEasyQualitySearch(value){easyQualityUI.search=String(value||'');easyQualityUI.page=1;renderEasyQualityPanel();}
+function setEasyQualityPage(delta){easyQualityUI.page=Math.max(1,easyQualityUI.page+delta);renderEasyQualityPanel();}
+function toggleEasyQualityRow(index){if(easyQualityUI.expanded.has(index))easyQualityUI.expanded.delete(index);else easyQualityUI.expanded.add(index);renderEasyQualityPanel();}
 function renderEasyQualityPanel(){
   const panel=document.getElementById('qualityPanel'); if(!panel)return;
   if(!excelRows.length){panel.style.display='none';panel.innerHTML='';return;}
-  const rows=excelRows.map((row,i)=>({sku:easyGet(row,['SKU','Sku','sku','RefId','RefID']),q:evaluateEasyQuality(row,i)}));
+  const rows=excelRows.map((row,i)=>({index:i,sku:easyGet(row,['SKU','Sku','sku','RefId','RefID']),q:evaluateEasyQuality(row,i)}));
   const counts={green:0,yellow:0,red:0}; rows.forEach(x=>counts[x.q.level]++);
   const overall=counts.red?'red':(counts.yellow?'yellow':'green');
   const labels={green:'Listo para publicar',yellow:'Requiere revisión',red:'Requiere corrección'};
   const status={green:'Listo',yellow:'Revisar',red:'Corregir'};
+  let filtered=rows.filter(x=>easyQualityUI.filter==='all'||(easyQualityUI.filter==='attention'&&x.q.level!=='green')||x.q.level===easyQualityUI.filter);
+  const q=easyQualityUI.search.trim().toLowerCase(); if(q)filtered=filtered.filter(x=>String(x.sku||'').toLowerCase().includes(q)||x.q.reasons.join(' ').toLowerCase().includes(q));
+  const total=filtered.length, pages=Math.max(1,Math.ceil(total/easyQualityUI.pageSize)); easyQualityUI.page=Math.min(easyQualityUI.page,pages);
+  const from=(easyQualityUI.page-1)*easyQualityUI.pageSize, shown=filtered.slice(from,from+easyQualityUI.pageSize);
+  const f=(key,label,count)=>`<button type="button" class="quality-filter ${easyQualityUI.filter===key?'active':''}" onclick="setEasyQualityFilter('${key}')">${label} ${count}</button>`;
   panel.style.display='block';
-  panel.innerHTML=`<div class="quality-head"><h2>🚦 Semáforo de calidad</h2><div class="quality-overall"><span class="quality-dot quality-${overall}"></span>${labels[overall]}</div></div><div class="quality-summary"><span class="quality-pill"><span class="quality-dot quality-green"></span>${counts.green} OK</span><span class="quality-pill"><span class="quality-dot quality-yellow"></span>${counts.yellow} por revisar</span><span class="quality-pill"><span class="quality-dot quality-red"></span>${counts.red} con corrección</span></div><details class="quality-details"><summary>Ver detalle por SKU</summary><div class="quality-grid">${rows.map(x=>`<div class="quality-sku"><div class="quality-sku-top"><strong>SKU ${escEasy(x.sku||'—')}</strong><span class="quality-status"><span class="quality-dot quality-${x.q.level}"></span> ${status[x.q.level]}</span></div><div class="quality-reasons">${x.q.reasons.map(r=>`<div>${escEasy(r)}</div>`).join('')}</div></div>`).join('')}</div></details>`;
+  panel.innerHTML=`<div class="quality-head"><h2>🚦 Semáforo de calidad</h2><div class="quality-overall"><span class="quality-dot quality-${overall}"></span>${labels[overall]}</div></div>
+  <div class="quality-summary"><span class="quality-pill"><span class="quality-dot quality-green"></span>${counts.green} OK</span><span class="quality-pill"><span class="quality-dot quality-yellow"></span>${counts.yellow} por revisar</span><span class="quality-pill"><span class="quality-dot quality-red"></span>${counts.red} con corrección</span></div>
+  <details class="quality-details"><summary>Ver detalle por SKU</summary><div class="quality-toolbar"><div class="quality-filters">${f('attention','Atención',counts.yellow+counts.red)}${f('yellow','🟠 Revisar',counts.yellow)}${f('red','🔴 Corrección',counts.red)}${f('green','🟢 OK',counts.green)}${f('all','Todos',rows.length)}</div><input class="quality-search" type="search" placeholder="🔎 Buscar SKU" value="${escEasy(easyQualityUI.search)}" oninput="setEasyQualitySearch(this.value)"></div>
+  <div class="quality-list">${shown.length?shown.map(x=>{const expanded=easyQualityUI.expanded.has(x.index), first=x.q.reasons[0]||'';return `<div class="quality-row"><div class="quality-row-sku"><span class="quality-dot quality-${x.q.level}"></span> ${escEasy(x.sku||'—')}</div><div class="quality-row-reason">${escEasy(first.replace(/^[🔴🟡🟢]\s*/u,''))}${x.q.reasons.length>1?` · ${x.q.reasons.length} alertas`:''}</div><div class="quality-row-status">${status[x.q.level]} ${x.q.reasons.length>1?`<button type="button" class="quality-more" title="Ver detalle" onclick="toggleEasyQualityRow(${x.index})">${expanded?'▴':'▾'}</button>`:''}</div>${expanded?`<div class="quality-expanded">${x.q.reasons.map(r=>`<div>${escEasy(r)}</div>`).join('')}</div>`:''}</div>`}).join(''):`<div class="quality-empty">No hay SKU para este filtro.</div>`}</div>
+  <div class="quality-footer"><span>Mostrando ${total?from+1:0}–${Math.min(from+easyQualityUI.pageSize,total)} de ${total} SKU</span>${pages>1?`<div class="quality-page-actions"><button type="button" onclick="setEasyQualityPage(-1)" ${easyQualityUI.page<=1?'disabled':''}>‹ Anterior</button><span style="padding:5px 4px">${easyQualityUI.page} / ${pages}</span><button type="button" onclick="setEasyQualityPage(1)" ${easyQualityUI.page>=pages?'disabled':''}>Siguiente ›</button></div>`:''}</div></details>`;
 }
 
 function detectEasySuggestions(scrollToModule=false){
@@ -1019,12 +1044,12 @@ function renderEasySuggestions(){
     if(!items.length)return;
     const pendingItems=items.filter(x=>x.s.status==='Sugerencia');
     const open=easySuggestionOpenState[type]!==false;
-    html+=`<div class="easy-sug-section"><div class="easy-sug-head"><button type="button" class="easy-sug-toggle" onclick="toggleEasySuggestionSection('${type}')"><span>${open?'▾':'▸'} ${title}</span><span>${pendingItems.length} pendiente${pendingItems.length===1?'':'s'}</span></button><div class="easy-sug-head-actions">${pendingItems.length?`<button type="button" onclick="applyEasyType('${type}')">✓ Aprobar todo</button>`:''}</div></div><div class="easy-sug-body" style="display:${open?'block':'none'};">`;
+    html+=`<div class="easy-sug-section"><div class="easy-sug-head"><button type="button" class="easy-sug-toggle" onclick="toggleEasySuggestionSection('${type}')"><span>${open?'▾':'▸'} ${title}</span><span>${pendingItems.length} pendiente${pendingItems.length===1?'':'s'}</span></button><div class="easy-sug-head-actions">${pendingItems.length?`<button type="button" onclick="applySelectedEasyType('${type}')">✓ Aprobar seleccionados</button><button type="button" onclick="applyEasyType('${type}')">✓ Aprobar todo</button>`:''}</div></div><div class="easy-sug-body" style="display:${open?'block':'none'};">`;
     const by={}; items.forEach(x=>(by[x.s.rowIndex]??=[]).push(x));
     Object.entries(by).forEach(([ri,arr])=>{
       const first=arr[0].s;
       const rowPending=arr.filter(x=>x.s.status==='Sugerencia').length;
-      html+=`<div class="easy-sku-group"><div class="easy-sku-head"><div class="easy-sku-title">SKU ${escEasy(first.sku||'Sin SKU')} · ${arr.length} sugerencia${arr.length===1?'':'s'}</div>${rowPending?`<button type="button" class="easy-sku-approve" onclick="applyEasyGroup('${type}',${ri})">✓ Aprobar SKU</button>`:''}</div><div class="easy-sku-body"><div class="easy-sug-grid">`;
+      html+=`<div class="easy-sku-group"><div class="easy-sku-head"><div class="easy-sku-title">SKU ${escEasy(first.sku||'Sin SKU')} · ${arr.length} sugerencia${arr.length===1?'':'s'}</div></div><div class="easy-sku-body"><div class="easy-sug-grid">`;
       arr.forEach(({s,i})=>{
         const done=s.status!=='Sugerencia';
         html+=`<div class="easy-sug-card" style="${done?'opacity:.55;':''}"><div class="easy-sug-select">${!done?`<input class="easy-sug-check" type="checkbox" ${easySuggestionSelection.has(i)?'checked':''} onchange="toggleEasySuggestionSelection(${i},this.checked)">`:''}<div><div class="easy-sug-value">${escEasy(s.value)}</div><div class="easy-sug-source">Detectado: “${escEasy(s.source)}”</div></div></div>${!done?`<div class="easy-sug-actions"><button type="button" class="easy-sug-action easy-sug-ok" title="Aprobar" aria-label="Aprobar" onclick="applyEasySuggestion(${i})">✓</button><button type="button" class="easy-sug-action easy-sug-no" title="Rechazar" aria-label="Rechazar" onclick="ignoreEasySuggestion(${i})">✕</button></div>`:`<div class="easy-sug-status">${escEasy(s.status)}</div>`}</div>`;
@@ -1034,6 +1059,14 @@ function renderEasySuggestions(){
     html+='</div></div>';
   });
   box.innerHTML=html;
+}
+function applySelectedEasyType(type){
+  const ids=[...easySuggestionSelection].filter(i=>easySuggestions[i]&&easySuggestions[i].type===type&&easySuggestions[i].status==='Sugerencia');
+  if(!ids.length) return alert('☑️ Selecciona al menos una sugerencia de esta sección.');
+  let approved=0;
+  ids.forEach(i=>{ if(easySuggestions[i]&&easySuggestions[i].status==='Sugerencia'){ applyEasySuggestion(i,true); approved++; } easySuggestionSelection.delete(i); });
+  renderEasySuggestions(); renderEasyQualityPanel(); updateTables();
+  alert(approved===1?'✅ Se aprobó 1 sugerencia':'✅ Se aprobaron '+approved+' sugerencias');
 }
 function applyEasyType(type){ easySuggestions.forEach((s,i)=>{if(s.type===type&&s.status==='Sugerencia')applyEasySuggestion(i,true)}); easySuggestionSelection.clear(); renderEasySuggestions();renderEasyQualityPanel();updateTables(); }
 
