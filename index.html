@@ -195,7 +195,7 @@ function cleanYoutubeUrl(url) {
 
     // Permitir también que venga solo el ID del video.
     if (/^[A-Za-z0-9_-]{11}$/.test(raw)) {
-        return `https://www.youtube-nocookie.com/embed/${raw}?playsinline=1`;
+        return `https://www.youtube.com/embed/${raw}?playsinline=1&origin=https%3A%2F%2Fwww.easy.cl`;
     }
 
     let u;
@@ -225,14 +225,14 @@ function cleanYoutubeUrl(url) {
     videoId = String(videoId).trim().replace(/[^A-Za-z0-9_-]/g, '');
     if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return '';
 
-    const base = `https://www.youtube-nocookie.com/embed/${videoId}`;
-    return `${base}?playsinline=1`;
+    const base = `https://www.youtube.com/embed/${videoId}`;
+    return `${base}?playsinline=1&origin=https%3A%2F%2Fwww.easy.cl`;
 }
 
 function buildYoutubePreviewHtml(url) {
     const embedUrl = cleanYoutubeUrl(url);
     if (!embedUrl) return '';
-    return `<div style='height:16px;line-height:0;font-size:0;clear:both;'>&nbsp;</div><div class='easy-video-responsive' style='position:relative;width:100%;max-width:100%;aspect-ratio:16 / 9;height:auto;box-sizing:border-box;margin:0;border-radius:12px;overflow:hidden;background:#000;clear:both;'><iframe src='${embedUrl}' title='Video YouTube' width='560' height='315' style='position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0;display:block;margin:0;padding:0;' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>`;
+    return `<div style='height:16px;line-height:0;font-size:0;clear:both;'>&nbsp;</div><div class='easy-video-responsive' style='position:relative;width:100%;max-width:100%;aspect-ratio:16 / 9;height:auto;box-sizing:border-box;margin:0;border-radius:12px;overflow:hidden;background:#000;clear:both;'><iframe src='${embedUrl}' title='Video YouTube' width='560' height='315' style='position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0;display:block;margin:0;padding:0;' referrerpolicy='strict-origin-when-cross-origin' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>`;
 }
 
 
@@ -1141,6 +1141,7 @@ if (hasSpecs) {
 
 function cleanExportHtml(html) {
   return String(html || '')
+    .replace(/&quot;/gi, '"')
     .replace(/>\s+</g, '><')
     .replace(/<div[^>]*>\s*<\/div>/gi, '')
     .replace(/<p[^>]*>\s*<\/p>/gi, '')
@@ -1217,7 +1218,7 @@ ${botonHTML}`;
     }
 
     if (embedUrl) {
-      html += `<div style='height:16px;line-height:0;font-size:0;clear:both;'>&nbsp;</div><div class="easy-video-responsive" style="position:relative;width:100%;max-width:100%;aspect-ratio:16 / 9;height:auto;box-sizing:border-box;margin:0;border-radius:12px;overflow:hidden;background:#000;clear:both;"><iframe src='${embedUrl}' title='Video YouTube' width='560' height='315' style="position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0;display:block;margin:0;padding:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+      html += `<div style='height:16px;line-height:0;font-size:0;clear:both;'>&nbsp;</div><div class='easy-video-responsive' style='position:relative;width:100%;max-width:100%;aspect-ratio:16 / 9;height:auto;box-sizing:border-box;margin:0;border-radius:12px;overflow:hidden;background:#000;clear:both;'><iframe src='${embedUrl}' title='Video YouTube' width='560' height='315' style='position:absolute;inset:0;width:100%;height:100%;max-width:100%;border:0;display:block;margin:0;padding:0;' referrerpolicy='strict-origin-when-cross-origin' allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share' allowfullscreen></iframe></div>`;
     }
 
     html += `</div>`;
