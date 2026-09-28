@@ -30,7 +30,7 @@ function flashDownloadOk() {
 
 
 // === URL remota OVERRIDE (opcional). Si está definida y accesible, se usa primero.
-const PLANTILLA_REMOTE_URL = "https://catalogo2025.github.io/consultor-para-pruebas/assets/Plantilla_Descripciones.xlsx";
+const PLANTILLA_REMOTE_URL = "";
 
 
 
@@ -76,9 +76,6 @@ async function downloadTemplate() {
     const ok0 = await tryFetch(PLANTILLA_REMOTE_URL);
     if (ok0) return;
   }
-
-  const absUrl = "https://catalogo2025.github.io/consultor-para-pruebas/assets/" + filename + "?v=" + Date.now();
-  if (await tryFetch(absUrl)) return;
 
   const relUrl = new URL("assets/" + filename + "?v=" + Date.now(), window.location.href).href;
   if (await tryFetch(relUrl)) return;
@@ -197,9 +194,7 @@ function cleanYoutubeUrl(url) {
 
     // Permitir también que venga solo el ID del video.
     if (/^[A-Za-z0-9_-]{11}$/.test(raw)) {
-        const playerOrigin = 'https://catalogo2025.github.io';
-        const widgetReferrer = 'https://catalogo2025.github.io/descripciones-regionales/';
-        return `https://www.youtube-nocookie.com/embed/${raw}?enablejsapi=1&playsinline=1&origin=${encodeURIComponent(playerOrigin)}&widget_referrer=${encodeURIComponent(widgetReferrer)}`;
+        return `https://www.youtube-nocookie.com/embed/${raw}?playsinline=1`;
     }
 
     let u;
@@ -230,11 +225,7 @@ function cleanYoutubeUrl(url) {
     if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) return '';
 
     const base = `https://www.youtube-nocookie.com/embed/${videoId}`;
-    // Identifica el cliente del reproductor aun cuando el index se abra como archivo local.
-    // En GitHub Pages/CommerceTools el navegador enviara ademas el Referer real.
-    const playerOrigin = 'https://catalogo2025.github.io';
-    const widgetReferrer = 'https://catalogo2025.github.io/descripciones-regionales/';
-    return `${base}?enablejsapi=1&playsinline=1&origin=${encodeURIComponent(playerOrigin)}&widget_referrer=${encodeURIComponent(widgetReferrer)}`;
+    return `${base}?playsinline=1`;
 }
 
 function buildYoutubePreviewHtml(url) {
