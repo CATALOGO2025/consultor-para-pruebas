@@ -155,7 +155,7 @@ function formatDescripcionHTML(textoPlano) {
                 items.push(lines[i].replace(/^\s*-\s+/, '').trim());
                 i++;
             }
-            out.push(`<ul style="margin:2px 0 8px 18px;padding:0;line-height:1.5;">${items.map(li => `<li style="margin:0 0 2px 0;">${li}</li>`).join('')}</ul>`);
+            out.push(`<ul style="list-style-type:disc !important;list-style-position:outside !important;margin:8px 0 16px 0 !important;padding-left:22px !important;line-height:1.5;">${items.map(li => `<li style="display:list-item !important;list-style-type:disc !important;margin:0 0 6px 0 !important;padding-left:0;">${li}</li>`).join('')}</ul>`);
             continue;
         }
 
