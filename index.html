@@ -936,9 +936,28 @@ async function loadMarcasParisMaster(){
         marcasParisMap = new Map();
         data.forEach(item => {
           const key = normalizeMarcaKey(item && item.marca);
-          if (key && !marcasParisMap.has(key)) marcasParisMap.set(key, item);
+          if (!key) return;
+
+          // Puede haber mas de una fila para una misma marca en el maestro.
+          // En vez de conservar solo la primera, consolidamos los datos no vacios
+          // de todas las coincidencias. Esto permite, por ejemplo, que una fila
+          // aporte la descripcion y otra el logo de Paris.
+          const actual = marcasParisMap.get(key) || {
+            marca: String((item && item.marca) || '').trim(),
+            descripcion_marca: '',
+            nombre_paris: ''
+          };
+
+          const descNueva = String((item && item.descripcion_marca) || '').trim();
+          const logoNuevo = String((item && item.nombre_paris) || '').trim();
+
+          if (!actual.descripcion_marca && descNueva) actual.descripcion_marca = descNueva;
+          if (!actual.nombre_paris && logoNuevo) actual.nombre_paris = logoNuevo;
+          if (!actual.marca && item && item.marca) actual.marca = String(item.marca).trim();
+
+          marcasParisMap.set(key, actual);
         });
-        console.info('Maestro Paris cargado:', marcasParisMap.size, 'marcas');
+        console.info('Maestro Paris cargado:', marcasParisMap.size, 'marcas consolidadas');
         return true;
       } catch (err) {
         lastError = err;
@@ -959,7 +978,21 @@ function enrichRowWithParisBrand(row){
   const marcaProducto = get(row, ['Marca','brand','Brand']);
   const key = normalizeMarcaKey(marcaProducto);
   if (!key) return false;
-  const master = marcasParisMap.get(key);
+  let master = marcasParisMap.get(key);
+
+  // Respaldo para diferencias menores de escritura (guiones, puntos, &, espacios).
+  // Solo se usa cuando no existe coincidencia exacta normalizada.
+  if (!master) {
+    const compact = key.replace(/[^a-z0-9]+/g, '');
+    if (compact) {
+      for (const [masterKey, masterItem] of marcasParisMap.entries()) {
+        if (masterKey.replace(/[^a-z0-9]+/g, '') === compact) {
+          master = masterItem;
+          break;
+        }
+      }
+    }
+  }
   if (!master) return false;
 
   let changed = false;
