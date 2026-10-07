@@ -1732,8 +1732,24 @@ function limpiarTodo() {
   document.getElementById('importFile').value = '';
   document.getElementById('tablesContainer').innerHTML = '<p>📂 Sin datos cargados.</p>';
   excelRows = [];
-  exportSelection.clear(); updateExportSelectionCount(); easySuggestionSelection.clear();
-  alert('🧹 Se limpiaron los datos y las tablas correctamente.');
+  exportSelection.clear();
+  updateExportSelectionCount();
+
+  // Reinicia completamente las sugerencias del archivo anterior.
+  easySuggestions = [];
+  easySuggestionSelection.clear();
+  ['dimensiones','material','peso','info','care'].forEach(type => {
+    easySuggestionOpenState[type] = true;
+  });
+
+  const suggestionsCard = document.getElementById('easySuggestionsCard');
+  const suggestionsSummary = document.getElementById('easySuggestionSummary');
+  const suggestionsBox = document.getElementById('easySuggestions');
+  if (suggestionsCard) suggestionsCard.style.display = 'none';
+  if (suggestionsSummary) suggestionsSummary.innerHTML = '';
+  if (suggestionsBox) suggestionsBox.innerHTML = '';
+
+  alert('🧹 Se limpiaron los datos, las tablas y las sugerencias correctamente.');
 }
 </script>
 </body>
