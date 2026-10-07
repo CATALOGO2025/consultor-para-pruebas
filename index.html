@@ -898,6 +898,96 @@ const defaultImagenes = {
 let excelRows = [];
 const exportSelection = new Set();
 
+// === Maestro remoto de marcas Paris ===
+// El archivo debe estar junto a index.html en GitHub Pages.
+// Se usa la URL absoluta solo como respaldo para pruebas fuera de GitHub Pages.
+const MARCAS_PARIS_JSON_URLS = [
+  './marcas-paris.json',
+  'https://catalogo2025.github.io/consultor-para-pruebas/marcas-paris.json'
+];
+let marcasParisMaster = [];
+let marcasParisMap = new Map();
+let marcasParisLoadPromise = null;
+
+function normalizeMarcaKey(v){
+  return String(v || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+async function loadMarcasParisMaster(){
+  if (marcasParisMap.size) return true;
+  if (marcasParisLoadPromise) return marcasParisLoadPromise;
+
+  marcasParisLoadPromise = (async function(){
+    let lastError = null;
+    for (const url of MARCAS_PARIS_JSON_URLS){
+      try {
+        const sep = url.includes('?') ? '&' : '?';
+        const response = await fetch(url + sep + 'v=' + Date.now(), { cache:'no-store' });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('El maestro de marcas no es un array JSON');
+
+        marcasParisMaster = data;
+        marcasParisMap = new Map();
+        data.forEach(item => {
+          const key = normalizeMarcaKey(item && item.marca);
+          if (key && !marcasParisMap.has(key)) marcasParisMap.set(key, item);
+        });
+        console.info('Maestro Paris cargado:', marcasParisMap.size, 'marcas');
+        return true;
+      } catch (err) {
+        lastError = err;
+        console.warn('No se pudo cargar maestro de marcas desde', url, err);
+      }
+    }
+    marcasParisMaster = [];
+    marcasParisMap = new Map();
+    throw lastError || new Error('No se pudo cargar marcas-paris.json');
+  })();
+
+  try { return await marcasParisLoadPromise; }
+  finally { marcasParisLoadPromise = null; }
+}
+
+function enrichRowWithParisBrand(row){
+  if (!row || !marcasParisMap.size) return false;
+  const marcaProducto = get(row, ['Marca','brand','Brand']);
+  const key = normalizeMarcaKey(marcaProducto);
+  if (!key) return false;
+  const master = marcasParisMap.get(key);
+  if (!master) return false;
+
+  let changed = false;
+  const desc = String(master.descripcion_marca || '').trim();
+  const nombreParis = String(master.nombre_paris || '').trim();
+
+  // No sobreescribir información que ya venga informada en el Excel cargado.
+  const descActual = get(row, ['Descripción de la Marca','Descripcion de la Marca','Descripción Marca']).trim();
+  const imgActual = get(row, ['URL Imagen Marca','Url Imagen Marca','Imagen de Marca','imagen de marca']).trim();
+
+  if (!descActual && desc) {
+    row['Descripción de la Marca'] = desc;
+    changed = true;
+  }
+  if (!imgActual && nombreParis) {
+    row['URL Imagen Marca'] = nombreParis;
+    changed = true;
+  }
+  if (changed) row['__MarcaEnriquecidaParis'] = 'Sí';
+  return changed;
+}
+
+function enrichAllRowsWithParisBrand(){
+  let enriched = 0;
+  excelRows.forEach(row => { if (enrichRowWithParisBrand(row)) enriched++; });
+  return enriched;
+}
+
 function toggleExportSelection(index, checked){
   if (checked) exportSelection.add(Number(index));
   else exportSelection.delete(Number(index));
@@ -914,18 +1004,33 @@ function importExcel() {
   const file = document.getElementById('importFile').files[0];
   if (!file) return alert('Por favor selecciona un archivo Excel.');
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async function(e) {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, {type: 'array'});
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     excelRows = XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
     if (!excelRows.length) return alert('❌ No se encontraron filas en el Excel.');
+
+    let enriched = 0;
+    let masterOk = false;
+    try {
+      masterOk = await loadMarcasParisMaster();
+      if (masterOk) enriched = enrichAllRowsWithParisBrand();
+    } catch (err) {
+      console.warn('El Excel se cargó, pero no fue posible consultar marcas-paris.json:', err);
+    }
+
     parisSuggestionBaselines.clear();
     excelRows.forEach((r,i)=>parisSuggestionBaselines.set(i,JSON.parse(JSON.stringify(r))));
     detectClaims();
     detectSmartSuggestions();
     renderQualityPanel();
-    alert('📁 Excel cargado correctamente. Puedes visualizar las tablas.');
+
+    if (masterOk) {
+      alert('📁 Excel cargado correctamente. Maestro Paris consultado: ' + enriched + ' ficha' + (enriched===1?'':'s') + ' enriquecida' + (enriched===1?'':'s') + '.');
+    } else {
+      alert('📁 Excel cargado correctamente. ⚠️ No se pudo consultar marcas-paris.json; las fichas se cargaron sin enriquecimiento automático de marca.');
+    }
   };
   reader.readAsArrayBuffer(file);
 }
